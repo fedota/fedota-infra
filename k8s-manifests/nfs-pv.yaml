@@ -1,0 +1,14 @@
+# PV using NFS
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+spec:
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    # NFS server is exposed through a service named nfs-service 
+    server: nfs-service.default.svc.cluster.local
+    path: "/"

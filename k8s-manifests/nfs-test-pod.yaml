@@ -1,0 +1,19 @@
+# Create a pod that reads and writes to the
+# NFS server via an NFS volume.
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-test-pod
+spec:
+  containers:
+    - name: app
+      image: alpine
+      volumeMounts:
+        - name: nfs-volume
+          mountPath: /nfs
+      command: ["/bin/sh"]
+      args: ["-c", "while true; do date >> /nfs/dates.txt; sleep 5; done"]
+  volumes:
+    - name: nfs-volume
+      persistentVolumeClaim:
+        claimName: nfs-pvc

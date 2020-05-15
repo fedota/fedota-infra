@@ -1,0 +1,49 @@
+# NFS Server as a k8s servive
+# folder to be shared is mounted onto the container
+# and passed as argument to the container to shared via NFS
+kind: Service
+apiVersion: v1
+metadata:
+  name: nfs-service
+spec:
+  selector:
+    role: nfs
+  ports:
+    - name: nfs
+      port: 2049
+    # - name: mountd
+    #   port: 20048
+    # - name: rpcbind
+    #   port: 111`
+    # - name: rpcbind-udp
+    #   port: 111
+    #   protocol: UDP
+---
+# Uses the NFS server image in a pod
+# exposed by the service.
+kind: Pod
+apiVersion: v1
+metadata:
+  name: nfs-server-pod
+  labels:
+    role: nfs
+spec:
+  containers:
+    - name: nfs-server-container
+      image: erichough/nfs-server
+      # Requires this privelage to mount fs
+      securityContext:
+        capabilities:
+          add: ["SYS_ADMIN"]
+      env:
+        # pass the folder in the container to export via NFS
+        - name: NFS_EXPORT_0
+          value: "/data    *(fsid=0,rw,sync,no_subtree_check,no_root_squash,no_all_squash,insecure)"
+      volumeMounts:
+        - name: nfs-node-data-dir
+          mountPath: "/data"
+  volumes:
+    - name: nfs-node-data-dir
+      hostPath:
+        # any local path on the node for the data to be persisted
+        path: "/data"
