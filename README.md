@@ -2,15 +2,26 @@
 
 This contains detailed instructions and explanation to setup and run the Fedota infrastructure.
 
+## Contents
+
+- [Overview](#overview)
+- [Setup](#setup)
+	- [NFS](#nfs)
+	- [FL Webserver](#fl-webserver)
+- [Resources](#resources)
+
 
 ## Overview
 
-### Diagram here
+```<Diagram here>```
 
-### Brief overview of system
+```Brief Overview```
 
 
-## Set up NFS
+## Setup
+Instruction to setup the fedota infrastructure
+
+### NFS
 NFS service need to be exposed to the k8s cluster. 
 - This can be in a [manual way](https://blog.exxactcorp.com/deploying-dynamic-nfs-provisioning-in-kubernetes/), provisioned by a cloud provider, OR
 - Use the `nfs-serive.yaml` manifest to run a nfs server as a container (by [erichough/nfs-server](https://github.com/ehough/docker-nfs-server)) on a pod which requires the following:
@@ -73,5 +84,27 @@ kubectl logs nfs-server-pod
 kubectl describe pod nfs-test-pod
 ```
 
-## Setup FL Webserver
+### FL Webserver
+
+
+
+## Resources
+
+### Shared File storage structure
+For each FL problem, FL coordinator and selectors use the `<fl_problem_id>` directory
+```
+\data
+	\<fl_problem_id> 
+		\initFiles
+			fl_checkpoint <- RW 
+			model.h5 <- R
+		\<selector-id>
+			fl_agg_checkpoint <- R
+			fl_agg_checkpoint_weight <- R
+			.
+			.
+		.
+		.
+		.
+```
 
