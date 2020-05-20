@@ -96,13 +96,16 @@ For each FL problem, FL coordinator and selectors use the `<fl_problem_id>` dire
 \data
 	\<fl_problem_id> 
 		\initFiles
-			fl_checkpoint <- RW 
-			model.h5 <- R
+			fl_checkpoint
+			model.h5
+			.
+			.
 		\<selector-id>
-			fl_agg_checkpoint <- R
-			fl_agg_checkpoint_weight <- R
-			.
-			.
+			fl_agg_checkpoint
+			fl_agg_checkpoint_weight
+			\roundFiles
+				checkpoint_<client-no>
+				checkpoint_weight_<client-no>
 		.
 		.
 		.
