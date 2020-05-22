@@ -40,7 +40,9 @@ NFS service need to be exposed to the k8s cluster.
 	kubectl get svc nfs-service
 	```
 
-Next, create the Persistent Volume(PV) using NFS and the Persistent Volume Claim (PVC)
+[Optional] For testing
+
+Create the Persistent Volume(PV) using NFS and the Persistent Volume Claim (PVC)
 ```
 kubectl create -f nfs-pv.yaml
 kubectl get pv nfs-pv # should be available
@@ -51,8 +53,7 @@ kubectl create -f nfs-pvc.yaml
 kubectl get pv nfs-pv
 kubectl get pvc nfs-pvc 
 ```
-
-[Optional] Run a test nfs pod to check if NFS service, pv and pvc work
+Run a test nfs pod to check if NFS service, pv and pvc work
 ```
 kubectl create -f nfs-test-pod.yaml
 
