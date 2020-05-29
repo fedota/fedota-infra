@@ -1,25 +1,36 @@
 # Fedota Infrastructure
 
-This contains detailed instructions and explanation to setup and run the Fedota infrastructure.
+Contains explanation about the Fedota infrastructure and instruction on the setup
 
 ## Contents
 
 - [Overview](#overview)
 - [Setup](#setup)
+	- [Requirements](#requirements)
 	- [NFS](#nfs)
-	- [FL Webserver](#fl-webserver)
+	- [Webserver](#webserver)
+- [Miscellaneous](#miscellaneous)
 - [Resources](#resources)
 
 
 ## Overview
 
-```<Diagram here>```
+The architecture of Fedota consists of 3 components
+- Webserver
+- Federated Learning (FL) infrastructure (Coordinator and selector)
+- Clients
 
-```Brief Overview```
+<image src="diagrams/fedota-infra.png" width="700">
 
+[Webserver](https://github.com/fedota/fl-webserver) is responsible for interacting with entities or users interacting with the platform. For each FL problem, an [Coordinator](https://github.com/fedota/fl-coordinator) service and some [Selector](https://github.com/fedota/fl-selector) services are spawned by the Webserver and all of them are isolated from services of another FL problem. Client software is started by organization providing data for the Fl problem and interacts with the respective FL infrastructure.
 
 ## Setup
-Instruction to setup the fedota infrastructure
+Instructions to setup the fedota infrastructure
+
+### Requirements
+The easiest way to run fedota is by setting up [Kubernetes](https://kubernetes.io/) and following the instruction mentions below. For a local setup, there are instruction in the repositories of individual components each having requirements and usage instructions. 
+
+For setting up Kubernetes, [several options](https://kubernetes.io/docs/setup/) exists. We have used [minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/) during development and testing. 
 
 ### NFS
 NFS service need to be exposed to the k8s cluster. 
@@ -85,14 +96,17 @@ kubectl logs nfs-server-pod
 kubectl describe pod nfs-test-pod
 ```
 
-### FL Webserver
+### Webserver
 
 
+Information about FL infrastructure components can be found here 
+- [Coordinator](https://github.com/fedota/fl-coordinator)
+- [Selector](https://github.com/fedota/fl-selector)
 
-## Resources
+## Miscellaneous
 
 ### Shared File storage structure
-For each FL problem, FL coordinator and selectors use the `<fl_problem_id>` directory
+For each FL problem, coordinator and selectors use the `<fl_problem_id>` directory
 ```
 \data
 	\<fl_problem_id> 
@@ -111,4 +125,6 @@ For each FL problem, FL coordinator and selectors use the `<fl_problem_id>` dire
 		.
 		.
 ```
+
+## Resources
 
