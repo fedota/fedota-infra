@@ -1,130 +1,39 @@
-# Fedota Infrastructure
+# Fedota Design and Architecture
 
-Contains explanation about the Fedota infrastructure and instruction on the setup
+[Federated learning](https://ai.googleblog.com/2017/04/federated-learning-collaborative.html) is privacy-preserving model training in
+heterogeneous, distributed networks. It is a way of collaboratively training a machine learning model using the distributed data on end devices without the need to export sensitive user data to a centralized location.
 
-## Contents
+Fedota is a federated learning (FL) platform that helps researchers and machine learning enthusiasts to come up with innovative solutions to modern day problems by giving them access to train their models on private and sensitive data which is usually hard to get. The platform encourages data owners to participate by
+getting personalized benefits of learning from their data without the need for them
+to lose control over their private data.
 
-- [Overview](#overview)
-- [Setup](#setup)
-	- [Requirements](#requirements)
-	- [NFS](#nfs)
-	- [Webserver](#webserver)
-- [Miscellaneous](#miscellaneous)
-- [Resources](#resources)
-
-
-## Overview
+There are two types of users involved:
+1. Problem Setter: These are researchers working on various machine learning
+problems who may need private user data or data which is not readily available
+to them for accomplishing these tasks. A problem setter is responsible for
+creating a new problem on the platform and describing format of the data to be
+used by end clients for running a given FL task. The problem setter also works
+on the model to be trained on these end devices.
+2. Data Holders: Data holders can participate in federated learning tasks released
+by different problem setters. They can be individuals with the required data for
+training a given model or larger organizations like hospitals using medical data for allowing researchers to work on accurate machine learning models. They
+are responsible for ensuring that the data is in the format as specified by the
+problem setters. They can participate in a particular round of federated learning
+by using the docker image for the client devices and passing the formatted data
+as a parameter while running the container. The model is loaded and trained
+locally on the end device and a checkpoint update is sent to fedota servers for
+aggregating the updates sent from different clients.
 
 The architecture of Fedota consists of 3 components
 - Webserver
 - Federated Learning (FL) infrastructure (Coordinator and selector)
 - Clients
-
 <image src="diagrams/fedota-infra.png" width="700">
 
-[Webserver](https://github.com/fedota/fl-webserver) is responsible for interacting with entities or users interacting with the platform. For each FL problem, an [Coordinator](https://github.com/fedota/fl-coordinator) service and some [Selector](https://github.com/fedota/fl-selector) services are spawned by the Webserver and all of them are isolated from services of another FL problem. Client software is started by organization providing data for the Fl problem and interacts with the respective FL infrastructure.
+[Webserver](https://github.com/fedota/fl-webserver) is responsible for interacting with entities or users (problem setters and data holders) that use the platform. For each FL problem, an [Coordinator](https://github.com/fedota/fl-coordinator) service and some [Selector](https://github.com/fedota/fl-selector) services are spawned by the Webserver and all of them are isolated from services of another FL problem. The [Client](https://github.com/fedota/fl-client) software is run by data holders for the Fl problem and interacts with the respective FL infrastructure for carrying out the training in the federated setting.
 
-## Setup
-Instructions to setup the fedota infrastructure
+Details can be found in the respective repositories.
 
-### Requirements
-The easiest way to run fedota is by setting up [Kubernetes](https://kubernetes.io/) and following the instruction mentions below. For a local setup, there are instruction in the repositories of individual components each having requirements and usage instructions. 
+## Setup and Usage
 
-For setting up Kubernetes, [several options](https://kubernetes.io/docs/setup/) exists. We have used [minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/) during development and testing. 
-
-### NFS
-NFS service need to be exposed to the k8s cluster. 
-- This can be in a [manual way](https://blog.exxactcorp.com/deploying-dynamic-nfs-provisioning-in-kubernetes/), provisioned by a cloud provider, OR
-- Use the `nfs-serive.yaml` manifest to run a nfs server as a container (by [erichough/nfs-server](https://github.com/ehough/docker-nfs-server)) on a pod which requires the following:
-
-<image src="diagrams/nfs.png">
-
-1. On the node where the pod would be running, create a directory `data`
-2. Make sure that the node has `nfs`, `nfsd` kernel modules available. Manually enable them using `modprobe {nfs,nfsd}`
-3. The manifest mounts this directory to the nfs container and also requires the an argument to the docker image to let the nfs server know we are sharing this directory (passed as NFS_EXPORT_0)
-4.
-	```
-	kubectl create -f nfs-service.yaml
-	
-	# check status to be running and svc to be up
-	kubectl get pod nfs-server-pod
-	kubectl get svc nfs-service
-	```
-
-[Optional] For testing
-
-Create the Persistent Volume(PV) using NFS and the Persistent Volume Claim (PVC)
-```
-kubectl create -f nfs-pv.yaml
-kubectl get pv nfs-pv # should be available
-
-kubectl create -f nfs-pvc.yaml
-
-# check; should be bound
-kubectl get pv nfs-pv
-kubectl get pvc nfs-pvc 
-```
-Run a test nfs pod to check if NFS service, pv and pvc work
-```
-kubectl create -f nfs-test-pod.yaml
-
-# check
-kubectl get pod nfs-test-pod # should be running
-
-# Both should print the same values
-kubectl exec -it nfs-test-pod sh
-	> cat /nfs/dates.txt
-kubectl exec -it nfs-server-pod sh
-	> cat /data/dates.txt
-```
-### Troubleshooting
-
-If `nfs-test-pod` fails with nfs-service dns resolution issue check, this could be due to problems with the distribution 
-- https://github.com/kubernetes/minikube/issues/2218#issuecomment-436821733
-- https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/#known-issues
-
-### Debugging
-
-Use the following to get logs and to describe the objects create
-```
-kubectl logs <pod-name>
-kubectl describe <pod/svc/pv..> <name>
-
-# for a running pod
-kubectl logs nfs-server-pod
-# generally
-kubectl describe pod nfs-test-pod
-```
-
-### Webserver
-
-
-Information about FL infrastructure components can be found here 
-- [Coordinator](https://github.com/fedota/fl-coordinator)
-- [Selector](https://github.com/fedota/fl-selector)
-
-## Miscellaneous
-
-### Shared File storage structure
-For each FL problem, coordinator and selectors use the `<fl_problem_id>` directory
-```
-\data
-	\<fl_problem_id> 
-		\initFiles
-			fl_checkpoint
-			model.h5
-			.
-			.
-		\<selector-id>
-			fl_agg_checkpoint
-			fl_agg_checkpoint_weight
-			\roundFiles
-				checkpoint_<client-no>
-				checkpoint_weight_<client-no>
-		.
-		.
-		.
-```
-
-## Resources
-
+Refer [USAGE.md](USAGE.md)
