@@ -9,7 +9,7 @@ For setting up Kubernetes, [several options](https://kubernetes.io/docs/setup/) 
 
 ## Webserver and the Client
 
-Setup the webserver as mentioned (https://github.com/fedota/fl-coordinator)
+Setup the webserver as mentioned (https://github.com/fedota/fl-webserver)
 
 It spawns the containers for coordinator and selector when the FL problem is created
 Information about FL infrastructure components can be found here 
